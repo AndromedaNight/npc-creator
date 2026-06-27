@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { AlertCircle, Users } from "lucide-react"
 
-import type {
-  Archetype,
-  Character,
-  CharacterCount,
-  Genre,
-  GeneratorOptions,
+import {
+  ARCHETYPES_BY_GENRE,
+  type Archetype,
+  type Character,
+  type CharacterCount,
+  type Genre,
+  type GeneratorOptions,
 } from "@/lib/npc-types"
 import { CharacterCard } from "@/components/character-card"
 import { CharacterCardSkeleton } from "@/components/character-card-skeleton"
@@ -47,6 +48,14 @@ export function NpcCreator() {
   const [hasGenerated, setHasGenerated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  function handleGenreChange(nextGenre: Genre) {
+    setGenre(nextGenre)
+    const compatibleArchetypes = ARCHETYPES_BY_GENRE[nextGenre]
+    if (!compatibleArchetypes.includes(archetype)) {
+      setArchetype(compatibleArchetypes[0])
+    }
+  }
 
   async function handleGenerate() {
     setIsLoading(true)
@@ -123,7 +132,7 @@ export function NpcCreator() {
         count={count}
         options={options}
         isLoading={isLoading}
-        onGenreChange={setGenre}
+        onGenreChange={handleGenreChange}
         onArchetypeChange={setArchetype}
         onCountChange={setCount}
         onOptionsChange={setOptions}

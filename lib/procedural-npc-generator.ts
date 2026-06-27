@@ -777,9 +777,20 @@ const SPECIES_BY_GENRE: Record<Genre, string[]> = {
     "Dwarf",
     "Elf",
   ],
+  "Post-Apocalyptic": [
+    "Human",
+    "Human",
+    "Human",
+    "Human",
+    "Human + Vampire",
+    "Catfolk",
+    "Wolfkin",
+    "Foxfolk",
+    "Elemental",
+  ],
 }
 
-const ARCHETYPE_TRAITS: Record<Archetype, string[]> = {
+const ARCHETYPE_TRAITS: Record<string, string[]> = {
   Student: ["curious", "restless", "eager"],
   Shopkeeper: ["practical", "gregarious", "observant"],
   "Office Worker": ["organized", "reserved", "dependable"],
@@ -790,7 +801,7 @@ const ARCHETYPE_TRAITS: Record<Archetype, string[]> = {
   Farmer: ["steady", "patient", "grounded"],
 }
 
-const ARCHETYPE_GOALS: Record<Archetype, string[]> = {
+const ARCHETYPE_GOALS: Record<string, string[]> = {
   Student: ["finish a difficult apprenticeship", "learn a hidden craft", "navigate a new city"],
   Shopkeeper: ["keep the business thriving", "expand the storefront", "earn a loyal customer base"],
   "Office Worker": ["secure a long-awaited promotion", "create a better routine", "protect a fragile work-life balance"],
@@ -801,7 +812,7 @@ const ARCHETYPE_GOALS: Record<Archetype, string[]> = {
   Farmer: ["save the harvest", "buy better land", "protect the village fields"],
 }
 
-const ARCHETYPE_FEARS: Record<Archetype, string[]> = {
+const ARCHETYPE_FEARS: Record<string, string[]> = {
   Student: ["being left behind", "failing an important exam", "being misunderstood"],
   Shopkeeper: ["bankruptcy", "losing a favorite customer", "being cheated"],
   "Office Worker": ["bureaucratic collapse", "public embarrassment", "being replaced"],
@@ -862,21 +873,34 @@ function buildNamePool(data: CultureData, kind: "first" | "last", size = 200): s
   return Array.from(pool)
 }
 
+function buildShortName(culture: CultureKey, genre: Genre): string {
+  const data = CULTURE_DATA[culture]
+  const firstNames = data.firstNames.filter((name) => name.length <= 10)
+  const lastNames = data.lastNames.filter((name) => name.length <= 12)
+  const first = weightedPick(firstNames)
+  const second = genre === "Fantasy" && Math.random() < 0.35
+    ? weightedPick(firstNames.filter((name) => name !== first))
+    : null
+  const last = weightedPick(lastNames)
+
+  return [first, second, last].filter(Boolean).join(" ")
+}
+
 function generateName(
   culture: CultureKey,
   usedNames: Set<string>,
+  genre: Genre,
 ): string {
   const data = CULTURE_DATA[culture]
-  const firstPool = buildNamePool(data, "first", 220)
-  const lastPool = buildNamePool(data, "last", 220)
 
-  for (let attempt = 0; attempt < 250; attempt += 1) {
-    const first = weightedPick(firstPool, Array(firstPool.length).fill(1))
-    const last = weightedPick(lastPool, Array(lastPool.length).fill(1))
-    const candidate = `${first} ${last}`
-    if (!usedNames.has(candidate)) {
-      usedNames.add(candidate)
-      return candidate
+  for (let attempt = 0; attempt < 400; attempt += 1) {
+    const candidate = buildShortName(culture, genre)
+    const normalized = candidate.replace(/\s+/g, " ").trim()
+    const length = normalized.length
+
+    if (length >= 8 && length <= 25 && !usedNames.has(normalized)) {
+      usedNames.add(normalized)
+      return normalized
     }
   }
 
@@ -959,7 +983,7 @@ function pickTraits(archetype: Archetype, genre: Genre): string[] {
 }
 
 function pickLikes(archetype: Archetype): string[] {
-  const likesByArchetype: Record<Archetype, string[]> = {
+  const likesByArchetype: Record<string, string[]> = {
     Student: ["music", "late-night study sessions", "small cafés"],
     Shopkeeper: ["conversation", "routine", "favorite snacks"],
     "Office Worker": ["quiet mornings", "organized notes", "good coffee"],
@@ -970,11 +994,11 @@ function pickLikes(archetype: Archetype): string[] {
     Farmer: ["sunrise", "homegrown food", "steady work"],
   }
 
-  return likesByArchetype[archetype].slice(0, 3)
+  return (likesByArchetype[archetype] ?? likesByArchetype.Student).slice(0, 3)
 }
 
 function pickDislikes(archetype: Archetype): string[] {
-  const dislikesByArchetype: Record<Archetype, string[]> = {
+  const dislikesByArchetype: Record<string, string[]> = {
     Student: ["chaos", "being rushed", "empty promises"],
     Shopkeeper: ["dishonesty", "crowds at closing time", "bad service"],
     "Office Worker": ["disorganization", "unnecessary meetings", "wasted time"],
@@ -985,7 +1009,7 @@ function pickDislikes(archetype: Archetype): string[] {
     Farmer: ["sudden change", "neglect", "flooded fields"],
   }
 
-  return dislikesByArchetype[archetype].slice(0, 3)
+  return (dislikesByArchetype[archetype] ?? dislikesByArchetype.Student).slice(0, 3)
 }
 
 function buildBackstory(genre: Genre, archetype: Archetype, species: string): string {
@@ -1038,7 +1062,7 @@ export function generateProceduralCharacters({
   for (let index = 0; index < count; index += 1) {
     const culture = pickCulture(genre)
     const species = pickSpecies(genre, usedSpecies)
-    const name = generateName(culture, usedNames)
+    const name = generateName(culture, usedNames, genre)
     const occupation = pickOccupation(genre, usedOccupations)
     const age = genre === "Fantasy" ? 20 + Math.floor(Math.random() * 80) : 18 + Math.floor(Math.random() * 60)
     const traits = pickTraits(archetype, genre)

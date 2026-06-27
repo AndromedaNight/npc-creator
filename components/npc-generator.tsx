@@ -3,7 +3,7 @@
 import { Loader2, Sparkles } from "lucide-react"
 
 import {
-  ARCHETYPES,
+  ARCHETYPES_BY_GENRE,
   CHARACTER_COUNTS,
   GENRES,
   type Archetype,
@@ -55,6 +55,8 @@ export function NpcGenerator({
   onOptionsChange,
   onGenerate,
 }: NpcGeneratorProps) {
+  const availableArchetypes = ARCHETYPES_BY_GENRE[genre]
+
   return (
     <Card>
       <CardHeader>
@@ -97,7 +99,7 @@ export function NpcGenerator({
                 <SelectValue placeholder="Select archetype" />
               </SelectTrigger>
               <SelectContent>
-                {ARCHETYPES.map((option) => (
+                {availableArchetypes.map((option) => (
                   <SelectItem key={option} value={option}>
                     {option}
                   </SelectItem>
