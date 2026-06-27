@@ -1,0 +1,8 @@
+allowBuilds:
+  '@google/genai': true
+  msw: set this to true or false
+  protobufjs: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - '@ai-sdk/gateway@4.0.3'
+  - ai@7.0.3

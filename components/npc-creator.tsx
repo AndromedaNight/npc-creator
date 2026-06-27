@@ -27,6 +27,8 @@ interface ApiCharacter {
   dailyRoutine: string | null
   relationships: { name: string; relation: string }[] | null
   dialogueStyle: string | null
+  species?: string
+  culturalBackground?: string
 }
 
 export function NpcCreator() {
@@ -83,6 +85,8 @@ export function NpcCreator() {
         dailyRoutine: c.dailyRoutine ?? undefined,
         relationships: c.relationships ?? undefined,
         dialogueStyle: c.dialogueStyle ?? undefined,
+        species: c.species,
+        culturalBackground: c.culturalBackground,
       }))
 
       setCharacters(mapped)

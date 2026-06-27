@@ -54,4 +54,6 @@ export interface Character {
   dailyRoutine?: string
   relationships?: Relationship[]
   dialogueStyle?: string
+  species?: string
+  culturalBackground?: string
 }

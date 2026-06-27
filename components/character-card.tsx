@@ -120,6 +120,14 @@ export function CharacterCard({
             <p className="mt-0.5 text-sm text-muted-foreground">
               {character.age} &middot; {character.occupation}
             </p>
+            {(character.species || character.culturalBackground) && (
+              <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                {character.species ?? "Unknown species"}
+                {character.culturalBackground
+                  ? ` • ${character.culturalBackground}`
+                  : ""}
+              </p>
+            )}
           </div>
           <Badge variant="secondary" className="shrink-0">
             {character.archetype}
